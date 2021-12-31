@@ -1,23 +1,42 @@
-import logo from './logo.svg';
-import './App.css';
+import { Route, Switch } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import Items from "./pages/Items";
+import Item from "./pages/Item";
+import ShoppingCart from "./pages/ShoppingCart";
+import Home from "./pages/Home";
+import axios from "axios";
+import { useEffect, useState } from "react";
 
 function App() {
+  const [books, setBooks] = useState([]);
+  const [page, setPage] = useState(1);
+  const updatePage = (newPage) => {
+    setPage(newPage);
+  };
+  useEffect(() => {
+    axios(`https://api.itbook.store/1.0/search/react/${page}`).then(
+      (response) => {
+        setBooks(response.data.books);
+      }
+    );
+  }, [page]);
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Navbar />
+      <Switch>
+        <Route path="/shopping-cart">
+          <ShoppingCart books={books} />
+        </Route>
+        <Route path="/items">
+          <Items books={books} updatePage={updatePage} />
+        </Route>
+        <Route path="/item/:id">
+          <Item books={books} />
+        </Route>
+        <Route path="/">
+          <Home />
+        </Route>
+      </Switch>
     </div>
   );
 }
